@@ -1,7 +1,6 @@
 import requests
 import json
 
-# لیست تمام سورس‌های ارسالی شما از پروژه کارینگ
 urls = [
     "https://github.com/KaringX/karing-ruleset/raw/refs/heads/sing/geo/geoip/irgfw-other-injected-ips.srs",
     "https://github.com/KaringX/karing-ruleset/raw/refs/heads/sing/geo/geoip/iranserver.srs",
@@ -45,7 +44,6 @@ def to_raw_url(url):
     url = url.replace("/raw/", "/")
     return url
 
-# تبدیل پسوند فایل‌های srs به json جهت استخراج مستقیم و متنی دیتا
 json_urls = set()
 for u in urls:
     raw_u = to_raw_url(u)
@@ -58,8 +56,6 @@ domains = set()
 domain_suffixes = set()
 domain_keywords = set()
 ip_cidrs = set()
-
-print(f"Fetching data from {len(json_urls)} KaringX JSON sources...")
 
 for url in sorted(list(json_urls)):
     try:
@@ -76,11 +72,9 @@ for url in sorted(list(json_urls)):
                 if "ip_cidr" in rule:
                     for ip in rule["ip_cidr"]: ip_cidrs.add(ip)
     except Exception as e:
-        print(f"Error fetching {url}: {e}")
+        pass
 
 shadowrocket_rules = []
-
-# مرتب‌سازی و ساخت ساختار استاندارد رول‌های شادوراکت
 for ds in sorted(list(domain_suffixes)): shadowrocket_rules.append(f"DOMAIN-SUFFIX,{ds},DIRECT")
 for d in sorted(list(domains)): shadowrocket_rules.append(f"DOMAIN,{d},DIRECT")
 for dk in sorted(list(domain_keywords)): shadowrocket_rules.append(f"DOMAIN-KEYWORD,{dk},DIRECT")
@@ -88,7 +82,7 @@ for ip in sorted(list(ip_cidrs)):
     if ":" in ip: shadowrocket_rules.append(f"IP-CIDR6,{ip},DIRECT")
     else: shadowrocket_rules.append(f"IP-CIDR,{ip},DIRECT")
 
-# قالب فایل کانفیگ نهایی Shadowrocket
+# حذف حرف f برای جلوگیری از تداخل ساختاری براکت‌ها در متن کانفیگ
 config_template = '''[General]
 bypass-system = true
 skip-proxy = 192.168.0.0/16, 10.0.0.0/8, 172.16.0.0/12, localhost, *.local, elcapitan.apple.com
